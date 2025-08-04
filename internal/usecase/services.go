@@ -32,3 +32,13 @@ func (s *TaskService) AddTask(desc string) (domain.Task, error) {
 
 	return task, nil
 }
+
+func (s *TaskService) ListTasks() ([]domain.Task, error) {
+
+	tasks, err := s.repo.List()
+	if err.Message != "" {
+		return []domain.Task{}, errors.New(err.Message)
+	}
+
+	return tasks, nil
+}
