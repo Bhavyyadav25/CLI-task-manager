@@ -37,7 +37,8 @@ func init() {
 			desc := strings.Join(args, " ")
 			task, err := svc.AddTask(desc)
 			if err != nil {
-				return err
+				fmt.Fprintf(os.Stderr, "⚠️  No task added: %s\n", err.Error())
+				return nil
 			}
 			fmt.Printf("✔️  Added task %s: %s\n", task.ID, task.Description)
 			return nil
@@ -53,17 +54,18 @@ func init() {
 				return err
 			}
 			if len(tasks) == 0 {
-				fmt.Println("No tasks found.")
+				fmt.Fprintf(os.Stderr, "⚠️  No task found")
 				return nil
 			}
-			fmt.Printf("%-4s  %-36s  %-30s  %-30s  %-30s\n", "No.", "ID", "Description", "Created At", "Updated At")
+			fmt.Printf("%-4s  %-36s  %-30s  %-30s  %-30s  %-30s\n", "No.", "ID", "Description", "Done", "Created At", "Updated At")
 			fmt.Println(strings.Repeat("-", 110))
 			for i, task := range tasks {
 				fmt.Printf(
-					"%02d.   %-36s  %-30s  %-30s  %-30s\n",
+					"%02d.   %-36s  %-30s  %-30v  %-30s  %-30s\n",
 					i+1,
 					task.ID,
 					task.Description,
+					task.Done,
 					task.CreatedAt.Format("02-01-2006 15:04"),
 					task.UpdateAt.Format("02-01-2006 15:04"),
 				)
@@ -72,8 +74,38 @@ func init() {
 		},
 	}
 
+	updateCmd := &cobra.Command{
+		Use:   "done [description]",
+		Short: "Mark the task done",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			desc := strings.Join(args, " ")
+			task, err := svc.MarkDone(desc)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "⚠️  Cannot mark task done: %s\n", err.Error())
+				return nil
+			}
+			fmt.Printf(
+				"%-4s  %-36s  %-30s  %-6s  %-16s  %-16s\n",
+				"No.", "ID", "Description", "Done", "Created At", "Updated At",
+			)
+			fmt.Println(strings.Repeat("-", 112))
+
+			fmt.Printf(
+				"01.   %-36s  %-30s  %-6v  %-16s  %-16s\n",
+				task.ID,
+				task.Description,
+				task.Done,
+				task.CreatedAt.Format("02-01-2006 15:04"),
+				task.UpdateAt.Format("02-01-2006 15:04"),
+			)
+			return nil
+		},
+	}
+
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(updateCmd)
 }
 
 func main() {

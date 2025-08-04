@@ -42,3 +42,12 @@ func (s *TaskService) ListTasks() ([]domain.Task, error) {
 
 	return tasks, nil
 }
+
+func (s *TaskService) MarkDone(id string) (domain.Task, error) {
+	task, err := s.repo.Update(&domain.Task{ID: uuid.MustParse(id), Done: true})
+	if err.Message != "" {
+		return domain.Task{}, errors.New(err.Message)
+	}
+
+	return task, nil
+}

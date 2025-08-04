@@ -3,6 +3,7 @@ package store
 import (
 	"encoding/json"
 	"os"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gookit/slog"
@@ -40,25 +41,36 @@ func (f *FileRepo) List() ([]domain.Task, domain.Error) {
 	return f.Load()
 }
 
-func (f *FileRepo) Update(task *domain.Task) domain.Error {
+func (f *FileRepo) Update(task *domain.Task) (domain.Task, domain.Error) {
 	tasks, err := f.Load()
 	if err.Message != "" {
-		return err
+		return domain.Task{}, err
 	}
 
 	updated := false
 	for i := range tasks {
 		if tasks[i].ID == task.ID {
-			tasks[i] = *task
+			if tasks[i].Done {
+				return domain.Task{}, domain.Error{Message: "task already done"}
+			}
+			tasks[i].Done = true
+			tasks[i].UpdateAt = time.Now()
+			task = &tasks[i]
 			updated = true
 			break
 		}
 	}
+
 	if !updated {
-		return domain.Error{Message: "task not found"}
+		return domain.Task{}, domain.Error{Message: "task not found"}
 	}
 
-	return f.save(tasks)
+	err = f.save(tasks)
+	if err.Message != "" {
+		return domain.Task{}, err
+	}
+
+	return *task, domain.Error{}
 }
 
 func (f *FileRepo) Delete(id uuid.UUID) domain.Error {

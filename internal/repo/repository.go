@@ -8,6 +8,6 @@ import (
 type TaskRepository interface {
 	Create(task *domain.Task) domain.Error
 	List() ([]domain.Task, domain.Error)
-	Update(task *domain.Task) domain.Error
+	Update(task *domain.Task) (domain.Task, domain.Error)
 	Delete(id uuid.UUID) domain.Error
 }
