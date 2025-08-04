@@ -51,3 +51,11 @@ func (s *TaskService) MarkDone(id string) (domain.Task, error) {
 
 	return task, nil
 }
+
+func (s *TaskService) DeleteTask(id string) error {
+	if err := s.repo.Delete(uuid.MustParse(id)); err.Message != "" {
+		return errors.New(err.Message)
+	}
+	
+	return nil
+}

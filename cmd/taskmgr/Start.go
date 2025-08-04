@@ -103,9 +103,26 @@ func init() {
 		},
 	}
 
+	deleteCmd := &cobra.Command{
+		Use:   "delete [description]",
+		Short: "Deleting a task",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			desc := strings.Join(args, " ")
+			err := svc.DeleteTask(desc)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "⚠️  No task deleted: %s\n", err.Error())
+				return nil
+			}
+			fmt.Printf("✔️  Deleted task with id: %s\n", desc)
+			return nil
+		},
+	}
+
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(updateCmd)
+	rootCmd.AddCommand(deleteCmd)
 }
 
 func main() {
