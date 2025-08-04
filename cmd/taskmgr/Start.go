@@ -28,6 +28,7 @@ func Execute() {
 func init() {
 	repo := store.NewFileRepo("internal/store/user_data.json")
 	svc := usecase.NewTaskService(repo)
+	pdfE := usecase.NewPDFExporter(repo)
 
 	addCmd := &cobra.Command{
 		Use:   "add [description]",
@@ -119,10 +120,27 @@ func init() {
 		},
 	}
 
+	pdfCmd := &cobra.Command{
+		Use:   "export [description]",
+		Short: "Export task in pdf format",
+		Args:  cobra.MinimumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			desc := strings.Join(args, " ")
+			err := pdfE.Export(desc)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "⚠️  No task exported: %s\n", err.Error())
+				return nil
+			}
+			fmt.Printf("✔️  Exported task: %s\n", desc)
+			return nil
+		},
+	}
+
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(updateCmd)
 	rootCmd.AddCommand(deleteCmd)
+	rootCmd.AddCommand(pdfCmd)
 }
 
 func main() {

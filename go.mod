@@ -5,6 +5,7 @@ go 1.23.8
 require (
 	github.com/google/uuid v1.6.0
 	github.com/gookit/slog v0.5.8
+	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/spf13/cobra v1.9.1
 )
 
