@@ -105,7 +105,7 @@ func init() {
 	}
 
 	deleteCmd := &cobra.Command{
-		Use:   "delete [description]",
+		Use:   "del [description]",
 		Short: "Deleting a task",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

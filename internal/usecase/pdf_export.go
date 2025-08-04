@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/Bhavyyadav25/CLI-task-manager/internal/repo"
@@ -19,6 +20,11 @@ func NewPDFExporter(r repo.TaskRepository) *PDFExporter {
 }
 
 func (e *PDFExporter) Export(filePath string) error {
+	lower := strings.ToLower(filePath)
+	if !strings.HasSuffix(lower, ".pdf") {
+		return fmt.Errorf("invalid file extension: %s", lower, " expected .pdf")
+	}
+
 	tasks, err := e.repo.List()
 	if err.Message != "" {
 		return fmt.Errorf("list tasks: %w", err)
